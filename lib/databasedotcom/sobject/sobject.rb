@@ -17,7 +17,10 @@ module Databasedotcom
           if field['type'] =~ /(picklist|multipicklist)/ && picklist_option = field['picklistValues'].find { |p| p['defaultValue'] }
             self.send("#{field["name"]}=", picklist_option["value"])
           elsif field['type'] =~ /boolean/
-            self.send("#{field["name"]}=", field["defaultValue"])
+            # This is modified from heroku/databasedotcom. It was converting
+            #   false values to nil, and Salesforce does not accept nil values
+            #   for booleans. Added !!.
+            self.send("#{field["name"]}=", !!field["defaultValue"])
           else
             self.send("#{field["name"]}=", field["defaultValueFormula"])
           end
